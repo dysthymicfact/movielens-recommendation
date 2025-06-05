@@ -65,8 +65,8 @@ Dataset ini terdiri dari beberapa file yang menyimpan berbagai informasi, namun 
 **Rubrik/Kriteria Tambahan:** Melakukan Exploratory Data Analysis\
 1. Analisis statistik deskriptif\
 **Dataset Movies:**
-  - `movieId`: nilai ID berkisar antara 1 hingga 193609 dengan rata-rata 42200. Sebagian besar ID film berada dalam kisaran 3248 hingga 76232 (kuartil ke-1 hingga ke-3)
-  - `year_of_release`: tahun rilis berkisar antara tahun 1902 hingga 2018 dengan rata-rata di tahun 1994. Sebagian besar film berada dalam kisaran tahun 1988 hingga 2008 (kuartil ke-1 hingga ke-3)
+  - `movieId`: nilai ID berkisar antara 1 hingga 193609 dengan rata-rata 41798. Sebagian besar ID film berada dalam kisaran 3233 hingga 74809 (kuartil ke-1 hingga ke-3)
+  - `year_of_release`: tahun rilis berkisar antara tahun 1902 hingga 2018 dengan rata-rata di tahun 1994. Sebagian besar film berada dalam kisaran tahun 1987 hingga 2008 (kuartil ke-1 hingga ke-3)
   - `genre_count`: jumlah genre yang dimiliki oleh tiap film berkisar antara 1 hingga 10 dengan rata-rata 2 genre. Sebagian besar film memiliki genre dalam kisaran 1 hingga 3 (kuartil ke-1 hingga ke-3)
 
 **Dataset Rating**
@@ -84,4 +84,82 @@ Dataset ini terdiri dari beberapa file yang menyimpan berbagai informasi, namun 
   - `timestamp`: aktivitas rating yang dilakukan oleh pengguna berkisar antara pukul 18.36 tanggal 29/3/1996 hingga pukul 14.27 tanggal 24/9/2018 dengan rata-rata aktivitas rating yang dilakukan pengguna berkisar pada pukul 18.34 tanggal 17/3/2008. Kemudian sebagian besar aktivitas rating dilakukan antara pukul 12.46 tanggal 7/4/2002 hingga pukul 07.04 tanggal 4/7/2015. Ini menunjukkan bahwa aktivitas dominan terjadi dalam kurun waktu tahun 2002 hingga 2015.
 
 2. Distribusi Rating Film
-   ![alt text]()
+   ![alt text](https://github.com/dysthymicfact/movielens-recommendation/blob/main/images/distribusi%20rating.png?raw=true)\
+Grafik distribusi rata-rata rating film menunjukkan bahwa mayoritas pengguna cenderung memberikan rating 3.5 dengan frekuensi sekitar 1400 lebih pengguna. Informasi lainnya, sebagian besar rating berkisar antara 3.0 dan 4.0 menunjukkan kecenderungan pengguna untuk menilai film secara positif.
+
+3. Distribusi Genre Film
+   ![alt text](https://github.com/dysthymicfact/movielens-recommendation/blob/main/images/10%20genre%20teratas.png?raw=true)
+   ![alt text](https://github.com/dysthymicfact/movielens-recommendation/blob/main/images/distribusi%20genre.png?raw=true)\
+Berdasarkan visualisasi data distribusi genre film di atas memberikan infromasi bahwa genre film yang paling banyak diproduksi adalah Drama dan Comedy sebanyak masing-masing 4000an dan lebih dari 3500 film. Ini berarti kedua genre tersebut telah mendominasi dunia perfilman. Dilanjutkan genre Thriller, Action, dan Romance yang cukup populer menjadi top 3,4, dan 5 film teratas. Di sisi lain, sebagian besar film memiliki 1 hingga 3 genre dengan jumlah tertinggi terdapat pada film yang memiliki 2 genre, diikuti oleh 1 dan 3.
+
+4. Distribusi Tahun Rilis
+   ![alt text](https://github.com/dysthymicfact/movielens-recommendation/blob/main/images/distribusi%20tahun%20rilis.png?raw=true)\
+Distribusi jumlah film yang dirilis setiap tahun menunjukkan pola pertumbuhan yang mencerminkan dinamika industri perfilman selama lebih dari satu abad. Pada periode sebelum tahun 1970, produksi film berlangsung dalam skala yang lebih terbatas, dengan jumlah rilis yang cenderung stabil di bawah 50 film per tahun. Namun, memasuki dekade 1970-an, terjadi percepatan signifikan dalam jumlah produksi, yang kemudian meningkat lebih tajam setelah tahun 1980. Tren ini mencapai puncaknya pada awal 2000-an, dengan jumlah film yang dirilis per tahun melampaui 300 judul, menandai era ekspansi industri secara masif. Setelah tahun 2015, terlihat adanya penurunan tajam dalam jumlah film yang tercatat, yang kemungkinan besar bukan akibat dari berkurangnya produksi, melainkan keterbatasan data terbaru yang belum sepenuhnya terakumulasi. Secara keseluruhan, grafik ini mengilustrasikan bagaimana industri film mengalami evolusi yang pesat, didorong oleh berbagai faktor seperti teknologi, permintaan pasar, dan perubahan lanskap distribusi film dalam beberapa dekade terakhir.
+
+5. Distribusi Rating per Film
+   ![alt text](https://github.com/dysthymicfact/movielens-recommendation/blob/main/images/distribusi%20rating%20per%20film.png?raw=true)\
+Histogram distribusi jumlah rating per film menunjukkan bahwa mayoritas film dalam dataset hanya menerima sedikit rating dari pengguna, dengan sebagian besar berada di kisaran 0–10 rating. Pola ini mencerminkan adanya long-tail effect, di mana hanya sejumlah kecil film yang menarik perhatian luas dan mendapatkan banyak ulasan, sementara sebagian besar film kurang dikenal atau kurang diminati. Tren ini mengindikasikan bahwa persebaran rating tidak merata, dengan beberapa film yang berhasil membangun popularitas besar, kemungkinan karena faktor seperti pemasaran, kualitas produksi, atau keterlibatan komunitas.
+
+## Data Preparation
+Teknik yang digunakan dalam Data Preparation adalah sebagai berikut:
+
+1. Data Cleaning `movies.csv`\
+   Dalam dataset movies.csv, informasi tahun rilis film digabungkan langsung dengan judul, sehingga perlu dipisahkan. Jika tidak ditangani dengan benar, kondisi ini dapat menyebabkan kesalahan interpretasi dalam tahap pelatihan model, terutama dalam analisis judul film sebagai fitur teks. Oleh karena itu, tahun rilis harus diekstrak dan dipindahkan ke dalam kolom terpisah agar dapat dianalisis secara terpisah tanpa memengaruhi pemrosesan judul film. Langkah ini memastikan bahwa model dapat mengenali pola dalam data dengan lebih akurat serta menghindari potensi inkonsistensi dalam pengolahan informasi film. 
+2. Data Cleaning `ratings.csv`\
+   Mengubah timestamps menjadi datetime agar mudah dipahami kapan pengguna melakukan penilaian (rating).
+3. Data Merging `movies` dan `ratings`\
+   Data dari movies dan ratings digabungkan menjadi satu tabel agar informasi tentang film dan penilaian pengguna dapat dianalisis secara bersamaan. Proses ini dilakukan dengan menyatukan kedua tabel berdasarkan kolom yang sama, sehingga setiap film dalam daftar memiliki informasi lengkap, termasuk rating yang diberikan oleh pengguna. Setelah digabungkan, hasilnya disimpan dalam variabel films, yang kemudian siap digunakan untuk pemrosesan lebih lanjut. 
+4. Data Cleaning `films`\
+   a. Menangani missing values\
+      Data yang hilang, null, NaN atau tidak terbaca adalah masalah yang sering muncul dalam pemrosesan dataset. Jika tidak ditangani dengan baik, kondisi ini dapat memengaruhi hasil analisis dan performa model yang dibuat. Oleh karena itu, langkah yang diambil yaitu menghapus data yang missing value/bernilai kosong menggunakan `films.dropna()` agar hanya data yang bersih dan relevan yang digunakan dalam pemodelan. Kemudian terdapat salah satu missing values pada fitur yakni panda genre di mana terdapat entri label "(no genre listed)" yang menunjukkan bahwa film tersebut tidak memiliki informasi kategori genre yang jelas. Dengan menghapus entri semacam ini, data yang digunakan menjadi lebih akurat, memastikan bahwa setiap film memiliki informasi genre yang valid untuk analisis lebih lanjut.\
+   b. Memperbaiki salah satu kategori ditur dalam genres\
+      Dalam fitur genre, terdapat kategori Sci-Fi, akronim dari Science Fiction, sebuah istilah yang merujuk pada film bertema fiksi ilmiah. Namun, kehadiran tanda pisah (-) dalam akronim ini berpotensi menimbulkan masalah dalam tahap vektorisasi TF-IDF, karena sistem secara otomatis akan memisahkannya menjadi dua entitas terpisah, yaitu "Sci" dan "Fi". Kondisi ini dapat menyebabkan ketidakkonsistenan dalam pemrosesan teks, karena model akan menganggapnya sebagai dua kata yang tidak berkaitan, sehingga mengganggu analisis genre secara akurat. Oleh karena itu, sebelum dilakukan vektorisasi, tanda pisah perlu dihapus, agar istilah Sci-Fi tetap dikenali sebagai satu kesatuan, memastikan tokenisasi berjalan sesuai dengan makna asli dari genre tersebut.\
+   c. Encoding Fitur Genres dengan TF-IDF\
+      Untuk menerapkan content-based filtering, informasi genre film yang awalnya berbentuk teks perlu dikonversi menjadi format numerik agar dapat dianalisis. Salah satu pendekatan yang digunakan adalah Term Frequency-Inverse Document Frequency (TF-IDF), yang memberikan bobot pada setiap genre berdasarkan frekuensinya di seluruh dataset. Teknik ini membantu membedakan genre yang lebih umum dari yang jarang muncul, sehingga film dengan genre khas tidak tenggelam dalam dominasi kategori populer.\
+   Setelah proses TF-IDF dilakukan, terbentuk sebuah matriks dengan dimensi (jumlah film × jumlah genre unik), di mana setiap baris mewakili satu film dan setiap kolom menunjukkan skor TF-IDF untuk masing-masing genre. Matriks ini berfungsi sebagai dasar untuk menghitung kemiripan antar film berdasarkan genre yang mereka miliki. Dengan memanfaatkan matriks ini, sistem dapat mendeteksi kesamaan antar film secara lebih objektif, memastikan bahwa rekomendasi yang diberikan tidak hanya didasarkan pada popularitas tetapi juga karakteristik spesifik film tersebut.
+
+## Modelling
+Dalam proyek ini, dikembangkan 2 model sistem rekomendasi yakni 
+
+1. Content-Based Filtering\
+   a. Cosine Similarity\
+   Model rekomendasi ini bekerja dengan cara mengidentifikasi kesamaan genre antara film yang sudah disukai pengguna dan film lainnya dalam dataset. Untuk menentukan tingkat kesamaan tersebut, digunakan metode **Cosine Similarity**, yaitu teknik matematika yang membandingkan dua vektor berdasarkan sudut yang terbentuk di antara keduanya. Setiap film dikonversi menjadi **vektor fitur**, yang dalam hal ini berasal dari **TF-IDF genre**, agar model dapat melakukan perbandingan secara kuantitatif.
+
+   Rumus cosine similarity:
+   $$\cos(\theta) = \frac{A \cdot B}{||A|| \times ||B||}$$
+
+   di mana:
+   - A · B adalah dot product dari vektor A dan B
+   - A dan B adalah panjang (magnitude) masing-masing vektor A dan B
+     
+   Cosine Similarity memiliki rentang nilai antara **-1 hingga 1**, yang menggambarkan seberapa dekat hubungan antar film:
+   - **Nilai 1** menunjukkan bahwa genre dari dua film memiliki pola yang sangat mirip
+   - **Nilai 0** mengindikasikan bahwa kedua film memiliki sedikit atau bahkan tidak ada kesamaan genre
+   - **Nilai -1** berarti kedua film memiliki genre yang sangat berbeda
+   
+   Secara teknis, metode ini menghitung kesamaan dengan membandingkan arah vektor, bukan besarnya nilai numeriknya, sehingga cocok untuk analisis data yang memiliki **kepadatan rendah** (sparse matrix), seperti representasi genre dalam CBF. Teknik ini juga memungkinkan sistem untuk menangkap hubungan antar film secara lebih fleksibel, bahkan jika film memiliki jumlah genre berbeda. Dengan menggunakan pendekatan ini, rekomendasi yang diberikan menjadi lebih kontekstual dan mempertimbangkan pola genre yang benar-benar relevan bagi pengguna berdasarkan preferensi mereka sebelumnya.\
+
+   b. Membuat fungsi khusus rekomendasi\
+   Tahap ini adalah membangun fungsi khusus yang dapat mengidentifikasi film dengan tingkat kesamaan tertinggi berdasarkan input yang diberikan. Fungsi ini bekerja dengan mencari hubungan kemiripan antara film yang diinginkan dan seluruh film lain dalam dataset, lalu memilih kandidat rekomendasi yang memiliki pola genre paling mendekati.\
+   Setelah proses perhitungan selesai, hasilnya disimpan dalam variabel closest, yang berisi daftar film dengan nilai kesamaan tertinggi. Untuk mengontrol jumlah film yang disarankan, digunakan parameter K, yang menentukan batasan jumlah rekomendasi yang akan diberikan. Agar hasil lebih akurat dan tidak mengulang informasi yang sudah diketahui, film yang menjadi titik referensi awal akan dihapus dari daftar rekomendasi. Sebagai langkah akhir, sistem akan mengembalikan rekomendasi dalam bentuk tabel, sehingga setiap film yang dipilih dapat ditampilkan secara jelas berdasarkan tingkat kesamaannya dengan film yang dicari.
+   ![alt text](https://github.com/dysthymicfact/movielens-recommendation/blob/main/images/fungsi%20rekomendasi.png?raw=true)
+
+   Berikut adalah hasil pencarian film dengan judul yang sama beserta informasi genrenya. Setelah itu, sistem melanjutkan dengan memberikan 5 rekomendasi teratas berdasarkan genre dari film "Steal Big, Steal Little". Proses rekomendasi telah berhasil, dan hasilnya menunjukkan bahwa film yang disarankan memiliki kemiripan genre, terutama dalam kategori Comedy.\
+
+   ![alt text](https://github.com/dysthymicfact/movielens-recommendation/blob/main/images/top%205%20rekomendasi.png?raw=true)
+
+Kelebihan Content-Based Filtering
+- Sistem dapat merekomendasikan film berdasarkan preferensi spesifik pengguna
+- Rekomendasi dibuat hanya berdasarkan karakteristik item yang sudah diberi nilai tanpa harus mengandalkan perilaku pengguna lain
+- Jika pengguna memiliki kecenderungan menyukai suatu genre atau karakteristik tertentu, sistem akan terus menyarankan item dengan kesamaan tersebut
+- Jika ada film baru yang belum mendapat rating, sistem tetap bisa merekomendasikannya berdasarkan deskripsi atau metadata seperti genre
+
+Kekurangan Content-Based Filtering
+- Jika pengguna belum pernah memberikan rating atau interaksi, sistem tidak memiliki informasi awal untuk membuat rekomendasi relevan
+- Cenderung hanya menyarankan film yang serupa dengan yang sudah ditonton sehingga pengguna mungkin tidak menemukan sesuatu yang baru di luar preferensi biasa
+- Jika dua film mirip dalam genre tetapi berbeda dalam aspek lain, sistem mungkin tetap merekomendasikannya tanpa mempertimbangkan konteks yang lebih luas
+- Content-Based Filtering tidak menggunakan informasi dari pengguna lain, sehingga kurang efektif dalam menangkap tren atau rekomendasi yang berbasis komunitas
+
+
+
+   
