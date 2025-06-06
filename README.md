@@ -160,6 +160,68 @@ Kekurangan Content-Based Filtering
 - Jika dua film mirip dalam genre tetapi berbeda dalam aspek lain, sistem mungkin tetap merekomendasikannya tanpa mempertimbangkan konteks yang lebih luas
 - Content-Based Filtering tidak menggunakan informasi dari pengguna lain, sehingga kurang efektif dalam menangkap tren atau rekomendasi yang berbasis komunitas
 
+2. Collaborative Filtering\
+   a. Data Preparation\
+   Pada tahap ini, dilakukan encoding terhadap fitur `userId` dan `movieId` untuk mengonversi setiap nilai unik menjadi indeks numerik. Transformasi ini bertujuan untuk mempermudah pemrosesan data oleh model, terutama dalam pembelajaran hubungan antara pengguna dan film dalam ruang laten. Selain itu, rating pengguna terhadap film dinormalisasi ke dalam skala 0-1, memastikan bahwa nilai rating berada dalam kisaran yang lebih stabil, sehingga memudahkan model dalam memahami preferensi relatif antar pengguna.\
+
+   b. Split Data Training & Validation\
+   Dataset dibagi dengan rasio 80/20, yaitu 80% untuk pelatihan dan 20% untuk validasi. Pembagian ini dilakukan secara acak untuk menghindari bias dalam urutan data. Data input terdiri dari pasangan pengguna dan film yang telah diencoding, sementara output target adalah rating yang sudah dinormalisasi. Langkah ini memastikan bahwa model memiliki cukup data untuk belajar pola rekomendasi sekaligus mengevaluasi performanya pada data yang belum pernah dilihat sebelumnya.\
+
+   c. Proses Training\
+   Model rekomendasi dikembangkan menggunakan pendekatan _Neural Collaborative Filtering (NCF)_ yang menerapkan teknik embedding untuk merepresentasikan pengguna dan film dalam ruang laten. Embedding ini memungkinkan sistem untuk memahami interaksi tersembunyi antara pengguna dan film sehingga meningkatkan kualitas prediksi rekomendasi.\
+   Dalam proses **kompilasi model**, beberapa teknik optimasi diterapkan:
+   - **BinaryCrossentropy** sebagai loss function untuk mengukur kesalahan prediksi dibandingkan dengan nilai aktual
+   - **Adam optimizer** dengan **learning rate 0.0001**, yang memungkinkan pembelajaran lebih stabil dan bertahap tanpa perubahan drastis dalam bobot model
+   - **Root Mean Squared Error (RMSE)** sebagai metrik evaluasi, yang digunakan untuk menilai seberapa akurat prediksi yang dihasilkan oleh model
+
+Proses pelatihan dilakukan selama 25 epochs dengan mekanisme Early Stopping (patience=5) sehingga training otomatis dihentikan jika tidak ada peningkatan signifikan dalam validasi RMSE selama beberapa iterasi. Batch size ditingkatkan dari 8 ke 16, membantu stabilitas pembelajaran dengan pemrosesan lebih banyak sampel dalam satu iterasi.\ 
+
+   d. Visualisasi Evaluasi Model\
+   Berdasarkan hasil visualisasi evaluasi model:
+- **Training RMSE terus menurun**, mencapai nilai akhir sekitar **0.1813**, menunjukkan bahwa model dapat menangkap pola dengan baik pada data latih
+- **Validation RMSE cenderung stabil di sekitar 0.19**, menandakan bahwa model berhasil menjaga keseimbangan antara akurasi dan generalisasi
+
+  e. Mendapatkan Rekomendasi\
+  Selanjutnya digunakan fungsi model.predict() untuk sistem memberikan rekomendasi film
+  ![alt text](https://github.com/dysthymicfact/movielens-recommendation/blob/main/images/eval%20model%203.png?raw=true)
+
+Kelebihan Collaborative FIltering
+- Model mampu memberikan rekomendasi berdasarkan pola interaksi pengguna lain dengan preferensi serupa. Jika ada pengguna dengan preferensi unik, model tetap dapat menangkap pola rekomendasinya berdasarkan embedding representation
+
+Kekurangan Collaborative FIltering
+- Memerlukan jumlah data interaksi yang cukup besar agar rekoemndasi tidak bias atau terbatas hanya pada pengguna dengan banyak rating
+
+## Evaluasi
+Dalam proyek ini, performa model dievaluasi menggunakan **Root Mean Squared Error (RMSE)** sebagai metrik utama, yang berfungsi untuk mengukur seberapa jauh prediksi rating dari model dibandingkan dengan rating sebenarnya yang diberikan oleh pengguna. RMSE dihitung dengan mencari rata-rata akar kuadrat dari selisih kuadrat antara nilai aktual dan prediksi, menggunakan rumus berikut:  
+
+$$ RMSE = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2} $$
+
+di mana $$\( y_i \)$$ adalah rating yang diberikan pengguna, $$\( \hat{y}_i \)$$ adalah rating yang diprediksi model, dan \( n \) adalah jumlah sampel  
+ 
+Cara kerja RMSE dapat diuraikan dalam beberapa tahap:  
+1️. **Menghitung selisih antara nilai aktual dan prediksi:** Model menghasilkan prediksi rating untuk pengguna, lalu perbedaan antara rating yang sebenarnya dan prediksi tersebut dikalkulasi\
+2️. **Menghitung kuadrat dari selisih tersebut:** Agar tidak ada kesalahan yang diabaikan—baik terlalu kecil atau terlalu besar—perbedaan nilai dikuadratkan untuk memberikan penalti lebih besar pada kesalahan signifikan\
+3️. **Merata-rata kesalahan kuadrat:** Seluruh kesalahan dikalkulasi dalam rata-rata Mean Squared Error (MSE), yang memberikan gambaran umum tentang seberapa baik atau buruk model melakukan prediksi\
+4️. **Mengambil akar kuadrat dari MSE:** RMSE mengambil akar kuadrat dari nilai ini agar hasil kembali ke skala yang sama dengan rating pengguna, menjadikannya lebih intuitif untuk interpretasi dalam sistem rekomendasi  
+
+Karena penalti pada kesalahan besar lebih tinggi dalam RMSE dibandingkan dengan metrik lain seperti Mean Absolute Error (MAE), metrik ini sangat berguna dalam sistem rekomendasi, di mana prediksi yang tidak akurat bisa sangat memengaruhi pengalaman pengguna.  
+
+### Hasil Evaluasi Model  
+Eksperimen menunjukkan bahwa **Training RMSE** mengalami penurunan yang stabil, mencapai 0.17, menunjukkan bahwa model telah belajar pola dari data dengan baik. **Validation RMSE** tetap berada di kisaran 0.19, menunjukkan model mampu menjaga keseimbangan antara akurasi prediksi dan generalisasi terhadap data baru. Stabilitas ini dicapai melalui **optimasi learning rate (0.0001)** yang menghindari perubahan parameter yang terlalu agresif, serta peningkatan batch size (dari 8 ke 16) yang membantu pembaruan bobot lebih konsisten.  
+
+### **Tantangan dan Pengembangan Model ke Depan**  
+Meskipun performa cukup baik, tantangan utama yang masih perlu diperhatikan adalah **Cold Start Problem**, di mana pengguna baru atau item baru memiliki sedikit data interaksi, sehingga sulit mendapatkan rekomendasi yang akurat. Selain itu, model masih bergantung pada **data historis**, sehingga bias dapat terjadi jika pola interaksi dalam dataset tidak cukup beragam. Untuk mengatasi hal ini, pendekatan **Hybrid Filtering**, yang menggabungkan **Collaborative Filtering dan Content-Based Filtering**, dapat digunakan untuk meningkatkan akurasi dalam skenario pengguna dengan informasi terbatas.  
+
+Ke depan, ada beberapa strategi untuk lebih meningkatkan model:  
+- Eksplorasi arsitektur **Graph Neural Networks (GNN)**, untuk memahami hubungan antar pengguna dan film secara lebih kontekstual
+- Menggunakan pretrained embeddings dari model BERT, sehingga representasi fitur menjadi lebih kaya dan meningkatkan kualitas rekomendasi  
+
+## Kesimpulan
+Dalam proyek ini, saya telah mengembangkan sistem rekomendasi film dengan pendekatan **Collaborative Filtering** dan **Content-Based Filtering**, masing-masing dengan karakteristik dan keunggulan yang berbeda. **Collaborative Filtering** memanfaatkan pola interaksi pengguna untuk memberikan rekomendasi berdasarkan kesamaan preferensi antar individu, sehingga dapat menghasilkan rekomendasi yang lebih personal. Di sisi lain, **Content-Based Filtering** lebih berfokus pada karakteristik film itu sendiri, seperti genre atau deskripsi, sehingga mampu memberikan rekomendasi yang relevan dengan film yang sebelumnya disukai pengguna.  
+
+Meskipun model menunjukkan hasil yang cukup baik, ada keterbatasan yang perlu diperhatikan, terutama dalam cakupan dataset yang digunakan. Jumlah film yang tersedia dalam dataset relatif terbatas, yang dapat mempengaruhi variasi rekomendasi yang diberikan. Dalam skenario dunia nyata, model mungkin kurang optimal dalam menangani pengguna yang lebih tertarik pada film-film terbaru karena sistem rekomendasi berbasis historis cenderung menyarankan film yang lebih lama dengan lebih banyak riwayat interaksi. Untuk meningkatkan relevansi rekomendasi, **Hybrid Filtering** dapat menjadi solusi dengan menggabungkan kedua pendekatan guna mengakomodasi preferensi pengguna secara lebih fleksibel dan adaptif terhadap tren film terkini.  
 
 
-   
+
+
+
