@@ -146,7 +146,7 @@ Dalam proyek ini, dikembangkan 2 model sistem rekomendasi yakni
 
    Berikut adalah hasil pencarian film dengan judul yang sama beserta informasi genrenya. Setelah itu, sistem melanjutkan dengan memberikan 5 rekomendasi teratas berdasarkan genre dari film "Steal Big, Steal Little". Proses rekomendasi telah berhasil, dan hasilnya menunjukkan bahwa film yang disarankan memiliki kemiripan genre, terutama dalam kategori Comedy.\
 
-   ![alt text](https://github.com/dysthymicfact/movielens-recommendation/blob/main/images/top%205%20rekomendasi.png?raw=true)
+   ![alt text](https://github.com/dysthymicfact/movielens-recommendation/blob/main/images/film%20rekomendasi.png?raw=true)
 
 Kelebihan Content-Based Filtering
 - Sistem dapat merekomendasikan film berdasarkan preferensi spesifik pengguna
@@ -185,7 +185,7 @@ Proses pelatihan dilakukan selama 25 epochs dengan mekanisme Early Stopping (pat
   Selanjutnya digunakan fungsi model.predict() untuk sistem memberikan rekomendasi film
   ![alt text](https://github.com/dysthymicfact/movielens-recommendation/blob/main/images/eval%20model%203.png?raw=true)
 
-Kelebihan Collaborative FIltering
+Kelebihan Collaborative Filtering
 - Model mampu memberikan rekomendasi berdasarkan pola interaksi pengguna lain dengan preferensi serupa. Jika ada pengguna dengan preferensi unik, model tetap dapat menangkap pola rekomendasinya berdasarkan embedding representation
 
 Kekurangan Collaborative FIltering
