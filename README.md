@@ -103,20 +103,34 @@ Histogram distribusi jumlah rating per film menunjukkan bahwa mayoritas film dal
 ## Data Preparation
 Teknik yang digunakan dalam Data Preparation adalah sebagai berikut:
 
-1. Data Cleaning `movies.csv`\
-   Dalam dataset movies.csv, informasi tahun rilis film digabungkan langsung dengan judul, sehingga perlu dipisahkan. Jika tidak ditangani dengan benar, kondisi ini dapat menyebabkan kesalahan interpretasi dalam tahap pelatihan model, terutama dalam analisis judul film sebagai fitur teks. Oleh karena itu, tahun rilis harus diekstrak dan dipindahkan ke dalam kolom terpisah agar dapat dianalisis secara terpisah tanpa memengaruhi pemrosesan judul film. Langkah ini memastikan bahwa model dapat mengenali pola dalam data dengan lebih akurat serta menghindari potensi inkonsistensi dalam pengolahan informasi film. 
-2. Data Cleaning `ratings.csv`\
-   Mengubah timestamps menjadi datetime agar mudah dipahami kapan pengguna melakukan penilaian (rating).
-3. Data Merging `movies` dan `ratings`\
-   Data dari movies dan ratings digabungkan menjadi satu tabel agar informasi tentang film dan penilaian pengguna dapat dianalisis secara bersamaan. Proses ini dilakukan dengan menyatukan kedua tabel berdasarkan kolom yang sama, sehingga setiap film dalam daftar memiliki informasi lengkap, termasuk rating yang diberikan oleh pengguna. Setelah digabungkan, hasilnya disimpan dalam variabel films, yang kemudian siap digunakan untuk pemrosesan lebih lanjut. 
-4. Data Cleaning `films`\
-   a. Menangani missing values\
-      Data yang hilang, null, NaN atau tidak terbaca adalah masalah yang sering muncul dalam pemrosesan dataset. Jika tidak ditangani dengan baik, kondisi ini dapat memengaruhi hasil analisis dan performa model yang dibuat. Oleh karena itu, langkah yang diambil yaitu menghapus data yang missing value/bernilai kosong menggunakan `films.dropna()` agar hanya data yang bersih dan relevan yang digunakan dalam pemodelan. Kemudian terdapat salah satu missing values pada fitur yakni panda genre di mana terdapat entri label "(no genre listed)" yang menunjukkan bahwa film tersebut tidak memiliki informasi kategori genre yang jelas. Dengan menghapus entri semacam ini, data yang digunakan menjadi lebih akurat, memastikan bahwa setiap film memiliki informasi genre yang valid untuk analisis lebih lanjut.\
-   b. Memperbaiki salah satu kategori ditur dalam genres\
-      Dalam fitur genre, terdapat kategori Sci-Fi, akronim dari Science Fiction, sebuah istilah yang merujuk pada film bertema fiksi ilmiah. Namun, kehadiran tanda pisah (-) dalam akronim ini berpotensi menimbulkan masalah dalam tahap vektorisasi TF-IDF, karena sistem secara otomatis akan memisahkannya menjadi dua entitas terpisah, yaitu "Sci" dan "Fi". Kondisi ini dapat menyebabkan ketidakkonsistenan dalam pemrosesan teks, karena model akan menganggapnya sebagai dua kata yang tidak berkaitan, sehingga mengganggu analisis genre secara akurat. Oleh karena itu, sebelum dilakukan vektorisasi, tanda pisah perlu dihapus, agar istilah Sci-Fi tetap dikenali sebagai satu kesatuan, memastikan tokenisasi berjalan sesuai dengan makna asli dari genre tersebut.\
-   c. Encoding Fitur Genres dengan TF-IDF\
-      Untuk menerapkan content-based filtering, informasi genre film yang awalnya berbentuk teks perlu dikonversi menjadi format numerik agar dapat dianalisis. Salah satu pendekatan yang digunakan adalah Term Frequency-Inverse Document Frequency (TF-IDF), yang memberikan bobot pada setiap genre berdasarkan frekuensinya di seluruh dataset. Teknik ini membantu membedakan genre yang lebih umum dari yang jarang muncul, sehingga film dengan genre khas tidak tenggelam dalam dominasi kategori populer.\
-   Setelah proses TF-IDF dilakukan, terbentuk sebuah matriks dengan dimensi (jumlah film × jumlah genre unik), di mana setiap baris mewakili satu film dan setiap kolom menunjukkan skor TF-IDF untuk masing-masing genre. Matriks ini berfungsi sebagai dasar untuk menghitung kemiripan antar film berdasarkan genre yang mereka miliki. Dengan memanfaatkan matriks ini, sistem dapat mendeteksi kesamaan antar film secara lebih objektif, memastikan bahwa rekomendasi yang diberikan tidak hanya didasarkan pada popularitas tetapi juga karakteristik spesifik film tersebut.
+#### **Data Cleaning movies.csv**  
+Dalam dataset **movies.csv**, informasi tahun rilis film digabungkan langsung dengan judul, sehingga perlu dipisahkan. Jika tidak ditangani dengan benar, kondisi ini dapat menyebabkan kesalahan interpretasi dalam tahap pelatihan model, terutama dalam analisis judul film sebagai fitur teks. Oleh karena itu, **tahun rilis diekstrak dan dipindahkan ke dalam kolom terpisah (`year_of_release`)** agar dapat dianalisis secara independen tanpa memengaruhi pemrosesan judul film. Langkah ini memastikan bahwa model dapat mengenali pola dalam data dengan lebih akurat serta menghindari potensi inkonsistensi dalam pengolahan informasi film.  
+
+Selain itu, **terdapat 18 missing values dalam kolom `year_of_release`**, seperti yang teridentifikasi melalui perintah `.isnull().sum()`. Jika missing values tidak ditangani, ini dapat memengaruhi analisis serta performa sistem rekomendasi. Oleh karena itu, langkah berikut diterapkan:  
+- Menghapus baris dengan missing values menggunakan `movies.dropna(subset=['year_of_release'])`, untuk memastikan hanya data yang bersih digunakan dalam pemrosesan lebih lanjut.
+- Memastikan tipe data numerik** dengan `movies['year_of_release'] = pd.to_numeric(movies['year_of_release'], errors='coerce')`, sehingga sistem tidak mengalami kendala interpretasi data saat digunakan dalam model.  
+
+#### **Data Cleaning ratings.csv**  
+Mengubah **timestamps menjadi format datetime**, agar lebih mudah dipahami kapan pengguna melakukan penilaian (rating) terhadap suatu film.  
+
+#### **Data Merging movies dan ratings**  
+Data dari **movies** dan **ratings** digabungkan menjadi satu tabel agar informasi tentang film dan penilaian pengguna dapat dianalisis secara bersamaan. Proses ini dilakukan dengan menyatukan kedua tabel berdasarkan **kolom yang sama**, sehingga setiap film dalam daftar memiliki informasi lengkap, termasuk rating yang diberikan oleh pengguna. Setelah digabungkan, hasilnya disimpan dalam variabel `films`, yang kemudian siap digunakan untuk pemrosesan lebih lanjut.  
+
+#### **Data Cleaning films**  
+a. **Menangani missing values**  
+Data yang hilang, null, NaN, atau tidak terbaca adalah masalah yang sering muncul dalam pemrosesan dataset. Jika tidak ditangani dengan baik, kondisi ini dapat memengaruhi hasil analisis dan performa model yang dibuat. Oleh karena itu, langkah yang diambil adalah:  
+- Menghapus missing values pada fitur `year_of_release` agar data tetap valid dalam analisis.
+- Menghapus entri dengan label `"(no genre listed)"` yang menunjukkan bahwa film tidak memiliki informasi kategori genre yang jelas. Dengan menghapus entri semacam ini, data yang digunakan menjadi lebih akurat, memastikan bahwa setiap film memiliki informasi genre yang valid untuk analisis lebih lanjut.  
+
+b. **Memperbaiki salah satu kategori fitur dalam genres**  
+Dalam fitur **genre**, terdapat kategori **Sci-Fi**, akronim dari Science Fiction, sebuah istilah yang merujuk pada film bertema fiksi ilmiah. Namun, kehadiran tanda pisah (`-`) dalam akronim ini berpotensi menimbulkan masalah dalam tahap vektorisasi **TF-IDF**, karena sistem secara otomatis akan memisahkannya menjadi dua entitas terpisah, yaitu `"Sci"` dan `"Fi"`. Kondisi ini dapat menyebabkan ketidakkonsistenan dalam pemrosesan teks, sehingga analisis genre tidak dapat dilakukan dengan akurat. Oleh karena itu, sebelum vektorisasi dilakukan:  
+- Tanda pisah (`-`) dihapus agar istilah `"Sci-Fi"` tetap dikenali sebagai satu kesatuan.
+- Tokenisasi diperiksa kembali** untuk memastikan bahwa genre film tetap sesuai dengan format yang diharapkan dalam analisis teks.  
+
+c. **Encoding fitur genres dengan TF-IDF**  
+Untuk menerapkan **Content-Based Filtering**, informasi **genre film** yang awalnya berbentuk teks perlu dikonversi menjadi format numerik agar dapat dianalisis. Salah satu pendekatan yang digunakan adalah **Term Frequency-Inverse Document Frequency (TF-IDF)**, yang memberikan bobot pada setiap genre berdasarkan frekuensinya di seluruh dataset. Teknik ini membantu membedakan genre yang lebih umum dari yang jarang muncul, sehingga film dengan genre khas tidak tenggelam dalam dominasi kategori populer.  
+
+Setelah proses **TF-IDF** dilakukan, terbentuk sebuah matriks dengan dimensi **(jumlah film × jumlah genre unik)**, di mana setiap baris mewakili satu film dan setiap kolom menunjukkan skor **TF-IDF** untuk masing-masing genre. Matriks ini berfungsi sebagai dasar untuk **menghitung kemiripan antar film berdasarkan genre yang mereka miliki**. Dengan memanfaatkan matriks ini, sistem dapat mendeteksi kesamaan antar film secara lebih objektif, memastikan bahwa rekomendasi yang diberikan tidak hanya didasarkan pada popularitas tetapi juga **karakteristik spesifik film tersebut**.  
 
 ## Modelling
 Dalam proyek ini, dikembangkan 2 model sistem rekomendasi yakni 
@@ -146,7 +160,7 @@ Dalam proyek ini, dikembangkan 2 model sistem rekomendasi yakni
 
    Berikut adalah hasil pencarian film dengan judul yang sama beserta informasi genrenya. Setelah itu, sistem melanjutkan dengan memberikan 5 rekomendasi teratas berdasarkan genre dari film "Steal Big, Steal Little". Proses rekomendasi telah berhasil, dan hasilnya menunjukkan bahwa film yang disarankan memiliki kemiripan genre, terutama dalam kategori Comedy.\
 
-   ![alt text](https://github.com/dysthymicfact/movielens-recommendation/blob/main/images/film%20rekomendasi.png?raw=true)
+   ![alt text](https://github.com/dysthymicfact/movielens-recommendation/blob/main/images/film%20rekomendasi%202.png?raw=true)
 
 Kelebihan Content-Based Filtering
 - Sistem dapat merekomendasikan film berdasarkan preferensi spesifik pengguna
@@ -178,12 +192,14 @@ Proses pelatihan dilakukan selama 25 epochs dengan mekanisme Early Stopping (pat
 
    d. Visualisasi Evaluasi Model\
    Berdasarkan hasil visualisasi evaluasi model:
-- **Training RMSE terus menurun**, mencapai nilai akhir sekitar **0.1813**, menunjukkan bahwa model dapat menangkap pola dengan baik pada data latih
-- **Validation RMSE cenderung stabil di sekitar 0.19**, menandakan bahwa model berhasil menjaga keseimbangan antara akurasi dan generalisasi
+- **Training RMSE terus menurun**, mencapai nilai akhir sekitar **0.1893**, menunjukkan bahwa model dapat menangkap pola dengan baik pada data latih
+- **Validation RMSE cenderung stabil di sekitar 0.1959**, menandakan bahwa model berhasil menjaga keseimbangan antara akurasi dan generalisasi\
+Visualisasi:
+![alt text](https://github.com/dysthymicfact/movielens-recommendation/blob/main/images/visualisasi%20eval%20model.png?raw=true)
 
   e. Mendapatkan Rekomendasi\
   Selanjutnya digunakan fungsi model.predict() untuk sistem memberikan rekomendasi film
-  ![alt text](https://github.com/dysthymicfact/movielens-recommendation/blob/main/images/eval%20model%203.png?raw=true)
+  ![alt text](https://github.com/dysthymicfact/movielens-recommendation/blob/main/images/rekomen%20collaborative%20filtering.png?raw=true)
 
 Kelebihan Collaborative Filtering
 - Model mampu memberikan rekomendasi berdasarkan pola interaksi pengguna lain dengan preferensi serupa. Jika ada pengguna dengan preferensi unik, model tetap dapat menangkap pola rekomendasinya berdasarkan embedding representation
